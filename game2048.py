@@ -1,14 +1,9 @@
 from directkeys import PressKey, W, A, S, D
-from selenium import webdriver
+
 import process_img
 import math
-def startGame():
-    driver = webdriver.Chrome('chromedriver.exe')
-    driver.set_window_position(-210, -450)
-    driver.get("https://gabrielecirulli.github.io/2048/")
-    appNotice = driver.find_element_by_class_name("app-notice")
-    while(not appNotice.is_displayed()) :
-        continue
+def startGame(driver):
+    driver.get("file:///C:/Users/pc/Documents/2048/index.html")
     return driver
 
 def doAction(driver, input_actions, gameStep):

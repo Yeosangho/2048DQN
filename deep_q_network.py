@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
-
+from selenium import webdriver
 import tensorflow as tf
 import cv2
 import sys
@@ -12,7 +12,7 @@ from collections import deque
 GAME = '2048' # the name of the game being played for log files
 ACTIONS = 4 # number of valid actions
 GAMMA = 0.99 # decay rate of past observations
-OBSERVE = 10000. # timesteps to observe before training
+OBSERVE = 10000 # timesteps to observe before training
 EXPLORE = 3000000. # frames over which to anneal epsilon
 FINAL_EPSILON = 0.0001 # final value of epsilon
 INITIAL_EPSILON = 0.1 # starting value of epsilon
@@ -191,22 +191,28 @@ def trainNetwork(s, readout, h_fc1, sess, driver):
         print("TIMESTEP", t, "/ STATE", state, "/ gameStep", gameStep, \
             "/ EPSILON", epsilon, "/ ACTION", action_index, "/ REWARD", r_t, \
             "/ Q_MAX %e" % np.max(readout_t))
-        cv2.namedWindow("game image")
-        cv2.moveWindow("game image", 1000, 0)
-        cv2.imshow("game image",  x_t1_colored)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            cv2.destroyAllWindows()
-            break
+        #cv2.namedWindow("game image")
+        #cv2.moveWindow("game image", 1000, 0)
+        #cv2.imshow("game image",  x_t1_colored)
+        #if cv2.waitKey(25) & 0xFF == ord('q'):
+            #cv2.destroyAllWindows()
+            #break
         # write info to files
 
         if t % 10000 <= 100:
             a_file.write(",".join([str(x) for x in readout_t]) + '\n')
             h_file.write(",".join([str(x) for x in h_fc1.eval(feed_dict={s:[s_t]})[0]]) + '\n')
-
+        if(t % 2500 == 0) :
+             driver.close()
+             driver = webdriver.Chrome('chromedriver.exe')
+             driver.set_window_position(-210, -400)
+             driver = game.startGame(driver)
 
 def playGame():
     #open game
-    driver = game.startGame()
+    driver = webdriver.Chrome('chromedriver.exe')
+    driver.set_window_position(-210, -400)
+    driver = game.startGame(driver)
     sess = tf.InteractiveSession()
     s, readout, h_fc1 = createNetwork()
     trainNetwork(s, readout, h_fc1, sess, driver)
