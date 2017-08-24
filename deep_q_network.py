@@ -202,7 +202,7 @@ def trainNetwork(s, readout, h_fc1, sess, driver):
         if t % 10000 <= 100:
             a_file.write(",".join([str(x) for x in readout_t]) + '\n')
             h_file.write(",".join([str(x) for x in h_fc1.eval(feed_dict={s:[s_t]})[0]]) + '\n')
-        if(t % 2500 == 0) :
+        if(t % 2000 == 0) :
              driver.close()
              driver = webdriver.Chrome('chromedriver.exe')
              driver.set_window_position(-210, -400)
