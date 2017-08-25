@@ -1,0 +1,2 @@
+model_checkpoint_path: "2048-dqn-580000"
+all_model_checkpoint_paths: "2048-dqn-580000"

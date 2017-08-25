@@ -12,7 +12,7 @@ from collections import deque
 GAME = '2048' # the name of the game being played for log files
 ACTIONS = 4 # number of valid actions
 GAMMA = 0.99 # decay rate of past observations
-OBSERVE = 10000 # timesteps to observe before training
+OBSERVE = 580100 # timesteps to observe before training
 EXPLORE = 3000000. # frames over which to anneal epsilon
 FINAL_EPSILON = 0.0001 # final value of epsilon
 INITIAL_EPSILON = 0.1 # starting value of epsilon
@@ -93,7 +93,7 @@ def trainNetwork(s, readout, h_fc1, sess, driver):
 
     # get the first state by doing nothing and preprocess the image to 80x80x4
     do_nothing = np.zeros(ACTIONS)
-    x_t, r_0, terminal, gameStep = game.doAction(driver, do_nothing, gameStep)
+    x_t, r_0, terminal, gameStep, score = game.doAction(driver, do_nothing, gameStep, 0)
     x_t = cv2.cvtColor(cv2.resize(x_t, (80, 80)), cv2.COLOR_BGR2GRAY)
     ret, x_t = cv2.threshold(x_t,1,255,cv2.THRESH_BINARY)
     s_t = np.stack((x_t, x_t, x_t, x_t), axis=2)
@@ -110,7 +110,7 @@ def trainNetwork(s, readout, h_fc1, sess, driver):
 
     # start training
     epsilon = INITIAL_EPSILON
-    t = 0
+    t = 580000
     while "2048" != "4096":
         # choose an action epsilon greedily
         readout_t = readout.eval(feed_dict={s : [s_t]})[0]
@@ -131,7 +131,7 @@ def trainNetwork(s, readout, h_fc1, sess, driver):
             epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / EXPLORE
 
         # run the selected action and observe next state and reward
-        x_t1_colored, r_t, terminal, gameStep = game.doAction(driver, a_t, gameStep)
+        x_t1_colored, r_t, terminal, gameStep, score = game.doAction(driver, a_t, gameStep, score)
         x_t1 = cv2.cvtColor(x_t1_colored,  cv2.COLOR_BGR2GRAY)
         ret, x_t1 = cv2.threshold(x_t1, 1, 255, cv2.THRESH_BINARY)
         x_t1 = np.reshape(x_t1, (80, 80, 1))
@@ -202,11 +202,12 @@ def trainNetwork(s, readout, h_fc1, sess, driver):
         if t % 10000 <= 100:
             a_file.write(",".join([str(x) for x in readout_t]) + '\n')
             h_file.write(",".join([str(x) for x in h_fc1.eval(feed_dict={s:[s_t]})[0]]) + '\n')
-        if(t % 2000 == 0) :
+        if(t % 5000 == 0) :
              driver.close()
              driver = webdriver.Chrome('chromedriver.exe')
              driver.set_window_position(-210, -400)
              driver = game.startGame(driver)
+             gameStep = 0
 
 def playGame():
     #open game

@@ -6,10 +6,9 @@ def startGame(driver):
     driver.get("file:///C:/Users/pc/Documents/2048/index.html")
     return driver
 
-def doAction(driver, input_actions, gameStep):
+def doAction(driver, input_actions, gameStep, oldScore):
     reward = 0.1
     terminal = False
-    oldScore = int(driver.find_element_by_class_name("best-container").get_attribute('innerHTML'))
     if input_actions[0] == 1:
         PressKey(W)
         gameStep = gameStep + 1
@@ -24,18 +23,18 @@ def doAction(driver, input_actions, gameStep):
         gameStep = gameStep + 1
 
     gameImage = process_img.process_img()
-    currentScore = int(driver.find_element_by_class_name("best-container").get_attribute('innerHTML'))
+    currentScore = int(driver.find_element_by_class_name("score-container").get_attribute('innerHTML').split('<',1)[0])
     retry = driver.find_element_by_class_name("retry-button")
     if(currentScore == 0):
         reward = 0
     elif(currentScore == oldScore) :
-        reward = -1
+        reward = 0
     elif (currentScore > oldScore) :
-        reward = (currentScore - oldScore) * math.log1p(gameStep) / 2048
-
+        reward = 1
+    oldScore = currentScore
     if(retry.is_displayed()):
         terminal = True
         reward = -1
         retry.click()
         gameStep = 0
-    return gameImage, reward, terminal, gameStep
+    return gameImage, reward, terminal, gameStep, oldScore
