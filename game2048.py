@@ -3,7 +3,7 @@ from directkeys import PressKey, W, A, S, D
 import process_img
 import math
 def startGame(driver):
-    driver.get("file:///C:/Users/pc/Documents/2048/index.html")
+    driver.get("file:///C:/Users/pc/Documents/2048DQN/2048/index.html")
     return driver
 
 def doAction(driver, input_actions, gameStep, oldScore):
